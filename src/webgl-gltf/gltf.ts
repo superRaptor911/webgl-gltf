@@ -1,6 +1,6 @@
-import * as gltf from "./types/gltf";
-import { mat4, quat, vec3, vec4 } from "gl-matrix";
-import { createMat4FromArray, applyRotationFromQuat } from "./mat";
+import * as gltf from './types/gltf';
+import { mat4, quat, vec3, vec4 } from 'gl-matrix';
+import { createMat4FromArray, applyRotationFromQuat } from './mat';
 import {
   Channel,
   Node,
@@ -11,7 +11,7 @@ import {
   Material,
   GLBuffer,
   Animation,
-} from "./types/model";
+} from './types/model';
 
 type GLContext = WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -39,7 +39,7 @@ export enum BufferType {
 }
 
 const getBuffer = async (path: string, buffer: string) => {
-  const dir = path.split("/").slice(0, -1).join("/");
+  const dir = path.split('/').slice(0, -1).join('/');
   const response = await fetch(`${dir}/${buffer}`);
   return await response.arrayBuffer();
 };
@@ -58,7 +58,7 @@ const getTexture = async (gl: GLContext, uri: string) => {
       );
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-      const ext = gl.getExtension("EXT_texture_filter_anisotropic");
+      const ext = gl.getExtension('EXT_texture_filter_anisotropic');
       if (ext) {
         const max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
         gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, max);
@@ -68,7 +68,7 @@ const getTexture = async (gl: GLContext, uri: string) => {
       resolve(texture!);
     };
     img.src = uri;
-    img.crossOrigin = "undefined";
+    img.crossOrigin = 'undefined';
   });
 };
 
@@ -139,27 +139,30 @@ const getBufferFromName = (
 
 const loadNodes = (index: number, node: gltf.Node): Node => {
   const transform = mat4.create();
+  const translation = vec3.create();
+  const scale = vec3.fromValues(1, 1, 1);
+  const rotation = quat.create();
 
   if (node.translation !== undefined)
-    mat4.translate(
-      transform,
-      transform,
-      vec3.fromValues(
-        node.translation[0],
-        node.translation[1],
-        node.translation[2]
-      )
+    vec3.set(
+      translation,
+      node.translation[0],
+      node.translation[1],
+      node.translation[2]
     );
   if (node.rotation !== undefined)
-    applyRotationFromQuat(transform, node.rotation);
-  if (node.scale !== undefined)
-    mat4.scale(
-      transform,
-      transform,
-      vec3.fromValues(node.scale[0], node.scale[1], node.scale[2])
+    quat.set(
+      rotation,
+      node.rotation[0],
+      node.rotation[1],
+      node.rotation[2],
+      node.rotation[3]
     );
+  if (node.scale !== undefined)
+    vec3.set(scale, node.scale[0], node.scale[1], node.scale[2]);
   if (node.matrix !== undefined) createMat4FromArray(node.matrix);
 
+  mat4.fromRotationTranslationScale(transform, rotation, translation, scale);
   return {
     id: index,
     name: node.name,
@@ -194,7 +197,7 @@ const loadAnimation = (
       type: c.target.path,
       time,
       buffer,
-      interpolation: sampler.interpolation ? sampler.interpolation : "LINEAR",
+      interpolation: sampler.interpolation ? sampler.interpolation : 'LINEAR',
     };
   });
 
@@ -210,14 +213,14 @@ const loadAnimation = (
 
     for (let i = 0; i < channel.time.data.length; i++) {
       const size =
-        channel.interpolation === "CUBICSPLINE"
+        channel.interpolation === 'CUBICSPLINE'
           ? channel.buffer.size * 3
           : channel.buffer.size;
       const offset =
-        channel.interpolation === "CUBICSPLINE" ? channel.buffer.size : 0;
+        channel.interpolation === 'CUBICSPLINE' ? channel.buffer.size : 0;
 
       const transform =
-        channel.type === "rotation"
+        channel.type === 'rotation'
           ? quat.fromValues(
               channel.buffer.data[i * size + offset],
               channel.buffer.data[i * size + offset + 1],
@@ -260,19 +263,19 @@ const loadMesh = (
 
     elementCount = indexBuffer.data.length;
   } else {
-    const accessor = getAccessor(gltf, mesh, "POSITION");
+    const accessor = getAccessor(gltf, mesh, 'POSITION');
     elementCount = accessor.count;
   }
 
   return {
     indices,
     elementCount,
-    positions: getBufferFromName(gl, gltf, buffers, mesh, "POSITION"),
-    normals: getBufferFromName(gl, gltf, buffers, mesh, "NORMAL"),
-    tangents: getBufferFromName(gl, gltf, buffers, mesh, "TANGENT"),
-    texCoord: getBufferFromName(gl, gltf, buffers, mesh, "TEXCOORD_0"),
-    joints: getBufferFromName(gl, gltf, buffers, mesh, "JOINTS_0"),
-    weights: getBufferFromName(gl, gltf, buffers, mesh, "WEIGHTS_0"),
+    positions: getBufferFromName(gl, gltf, buffers, mesh, 'POSITION'),
+    normals: getBufferFromName(gl, gltf, buffers, mesh, 'NORMAL'),
+    tangents: getBufferFromName(gl, gltf, buffers, mesh, 'TANGENT'),
+    texCoord: getBufferFromName(gl, gltf, buffers, mesh, 'TEXCOORD_0'),
+    joints: getBufferFromName(gl, gltf, buffers, mesh, 'JOINTS_0'),
+    weights: getBufferFromName(gl, gltf, buffers, mesh, 'WEIGHTS_0'),
     material: mesh.primitives[0].material,
   } as Mesh;
 };
@@ -283,7 +286,7 @@ const loadMaterial = async (
   path: string,
   images?: gltf.Image[]
 ): Promise<Material> => {
-  const dir = path.split("/").slice(0, -1).join("/");
+  const dir = path.split('/').slice(0, -1).join('/');
 
   let baseColorTexture: WebGLTexture | null = null;
   let metallicRoughnessTexture: WebGLTexture | null = null;
@@ -368,7 +371,7 @@ const loadModel = async (gl: GLContext, uri: string) => {
   const gltf = (await response.json()) as gltf.GlTf;
 
   if (gltf.accessors === undefined || gltf.accessors.length === 0) {
-    throw new Error("GLTF File is missing accessors");
+    throw new Error('GLTF File is missing accessors');
   }
 
   const buffers = await Promise.all(
@@ -412,7 +415,7 @@ const loadModel = async (gl: GLContext, uri: string) => {
       })
     : ([] as Skin[]);
 
-  const name = uri.split("/").slice(-1)[0];
+  const name = uri.split('/').slice(-1)[0];
   return {
     name,
     meshes,

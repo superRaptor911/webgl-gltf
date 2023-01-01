@@ -1,5 +1,5 @@
 {
-  "name": "webgl-gltf",
+  "name": "@super_raptor911/webgl-gltf",
   "version": "0.3.4",
   "description": "GLTF 2.0 loader for WebGL (fork of larsjarlvik's webgl-gltf)",
   "keywords": [
