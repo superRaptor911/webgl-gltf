@@ -1,7 +1,7 @@
 {
   "name": "webgl-gltf",
-  "version": "0.3.3",
-  "description": "GLTF 2.0 loader for WebGL",
+  "version": "0.3.4",
+  "description": "GLTF 2.0 loader for WebGL (fork of larsjarlvik's webgl-gltf)",
   "keywords": [
     "WebGL",
     "glTF",
@@ -9,13 +9,13 @@
     "Mesh",
     "loader"
   ],
-  "homepage": "https://github.com/larsjarlvik/webgl-gltf",
+  "homepage": "https://github.com/superRaptor911/webgl-gltf",
   "repository": {
     "type": "git",
-    "url": "https://github.com/larsjarlvik/webgl-gltf.git"
+    "url": "https://github.com/superRaptor911/webgl-gltf.git"
   },
   "bugs": {
-    "url": "https://github.com/larsjarlvik/webgl-gltf/issues"
+    "url": "https://github.com/superRaptor911/webgl-gltf/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,7 +27,7 @@
     "build": "webpack --mode production",
     "prepublish": "rimraf dist/ && node node_modules/typescript/bin/tsc --project ./src && cp -r src/webgl-gltf/types dist/"
   },
-  "author": "Lars Jarlvik",
+  "author": "superRaptor911",
   "license": "ISC",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.32.0",
