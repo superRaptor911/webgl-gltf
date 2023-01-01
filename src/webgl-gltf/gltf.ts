@@ -1,6 +1,6 @@
 import * as gltf from './types/gltf';
 import { mat4, quat, vec3, vec4 } from 'gl-matrix';
-import { createMat4FromArray, applyRotationFromQuat } from './mat';
+import { createMat4FromArray } from './mat';
 import {
   Channel,
   Node,
